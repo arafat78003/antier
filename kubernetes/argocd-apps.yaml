@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikhildhakad55/piggymetrics.git'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/arafat78003/antier.git'
+    targetRevision: main
     path: kubernetes/infra
   destination:
     server: 'https://kubernetes.default.svc'
@@ -27,8 +27,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikhildhakad55/piggymetrics.git'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/arafat78003/antier.git'
+    targetRevision: main
     path: kubernetes/apps/auth-service
   destination:
     server: 'https://kubernetes.default.svc'
@@ -48,8 +48,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikhildhakad55/piggymetrics.git'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/arafat78003/antier.git'
+    targetRevision: main
     path: kubernetes/apps/account-service
   destination:
     server: 'https://kubernetes.default.svc'
@@ -69,8 +69,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikhildhakad55/piggymetrics.git'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/arafat78003/antier.git'
+    targetRevision: main
     path: kubernetes/apps/statistics-service
   destination:
     server: 'https://kubernetes.default.svc'
@@ -90,8 +90,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikhildhakad55/piggymetrics.git'
-    targetRevision: HEAD
+    repoURL: 'https://github.com/arafat78003/antier.git'
+    targetRevision: main
     path: kubernetes/apps/notification-service
   destination:
     server: 'https://kubernetes.default.svc'

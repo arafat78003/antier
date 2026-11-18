@@ -61,7 +61,7 @@ pipeline {
 
         stage('Trigger manifest update') {
             steps {
-                // Waits for the manifest job, so this build fails if the deploy fails
+                // Waits for the manifest job, so this build fails if the tag update fails
                 build job: env.MANIFEST_JOB, parameters: [string(name: 'TAG', value: env.IMAGE_TAG)]
             }
         }

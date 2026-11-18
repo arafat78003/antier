@@ -1,6 +1,7 @@
 // Manifest update for notification-service
-// Writes the new image tag into kubernetes/apps/notification-service/deployment.yaml,
-// commits and pushes it to GitHub, then rolls it out to the kind cluster.
+// Writes the new image tag (build number) into kubernetes/apps/notification-service/deployment.yaml
+// and pushes it to GitHub. That is all this job does: Argo CD (Application
+// piggymetrics-notification-service) sees the new commit and deploys it to the cluster.
 // Triggered by notification-service-ci with TAG=notification-service-<build number>.
 //
 // Jenkins job:  notification-service-manifest   (Pipeline script from SCM -> pipeline/notification/main-job.groovy)
@@ -25,7 +26,6 @@ pipeline {
         GIT_BRANCH = 'main'
         IMAGE_REPO = 'arafat78003/antier'
         MANIFEST   = "kubernetes/apps/${SERVICE}/deployment.yaml"
-        NAMESPACE  = 'piggymetrics'
     }
 
     stages {
@@ -86,19 +86,6 @@ pipeline {
                         exit 1
                     '''
                 }
-            }
-        }
-
-        stage('Deploy to kind') {
-            steps {
-                sh '''
-                    kubectl apply -n "$NAMESPACE" -f "$MANIFEST"
-                    if ! kubectl rollout status deployment/"$SERVICE" -n "$NAMESPACE" --timeout=300s; then
-                        echo "New version did not become ready, rolling back the cluster to the previous version"
-                        kubectl rollout undo deployment/"$SERVICE" -n "$NAMESPACE"
-                        exit 1
-                    fi
-                '''
             }
         }
     }

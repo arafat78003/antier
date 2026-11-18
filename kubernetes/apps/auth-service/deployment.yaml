@@ -29,8 +29,8 @@ spec:
     spec:
       containers:
       - name: auth-service
-        # Tag is set by Jenkins (pipeline/auth/main-job.groovy)
-        image: arafat78003/antier:auth-service-1
+        # Tag is set by Jenkins (pipeline/auth/main-job.groovy); -0 is a placeholder until the first build
+        image: arafat78003/antier:auth-service-0
         imagePullPolicy: IfNotPresent
         env:
         - name: CONFIG_SERVICE_PASSWORD
