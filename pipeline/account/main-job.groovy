@@ -21,8 +21,8 @@ pipeline {
 
     environment {
         SERVICE    = 'account-service'
-        GIT_REPO   = 'github.com/nikhildhakad55/piggymetrics.git'
-        GIT_BRANCH = 'master'
+        GIT_REPO   = 'github.com/arafat78003/antier.git'
+        GIT_BRANCH = 'main'
         IMAGE_REPO = 'arafat78003/antier'
         MANIFEST   = "kubernetes/apps/${SERVICE}/deployment.yaml"
         NAMESPACE  = 'piggymetrics'
