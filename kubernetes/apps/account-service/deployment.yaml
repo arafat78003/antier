@@ -30,7 +30,7 @@ spec:
       containers:
       - name: account-service
         # Tag is set by Jenkins (pipeline/account/main-job.groovy); -0 is a placeholder until the first build
-        image: arafat78003/antier:account-service-11
+        image: arafat78003/antier:account-service-12
         imagePullPolicy: IfNotPresent
         env:
         - name: CONFIG_SERVICE_PASSWORD
