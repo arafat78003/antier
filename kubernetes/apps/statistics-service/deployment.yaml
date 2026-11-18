@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: statistics-service
+  namespace: piggymetrics
+spec:
+  ports:
+  - port: 7000
+    targetPort: 7000
+  selector:
+    app: statistics-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: statistics-service
+  namespace: piggymetrics
+  labels:
+    app: statistics-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: statistics-service
+  template:
+    metadata:
+      labels:
+        app: statistics-service
+    spec:
+      containers:
+      - name: statistics-service
+        # Tag is set by Jenkins (pipeline/statistics/main-job.groovy)
+        image: arafat78003/antier:statistics-service-1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONFIG_SERVICE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: piggymetrics-secrets
+              key: CONFIG_SERVICE_PASSWORD
+        - name: STATISTICS_SERVICE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: piggymetrics-secrets
+              key: STATISTICS_SERVICE_PASSWORD
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: piggymetrics-secrets
+              key: MONGODB_PASSWORD
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: RIBBON_EUREKA_ENABLED
+          value: "false"
+        ports:
+        - containerPort: 7000
+        # Ready only once Spring Boot has started and is listening (takes ~1 min)
+        readinessProbe:
+          tcpSocket:
+            port: 7000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 30
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "100m"

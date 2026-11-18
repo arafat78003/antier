@@ -1,0 +1,94 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: account-service-template
+  namespace: argo
+spec:
+  entrypoint: ci-pipeline
+  arguments:
+    parameters:
+    - name: revision
+      value: "master"
+    - name: commit-sha
+      value: "latest-argo"
+  
+  volumeClaimTemplates:
+  - metadata:
+      name: workdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+  volumes:
+  - name: docker-config
+    secret:
+      secretName: ghcr-secret
+      items:
+        - key: .dockerconfigjson
+          path: config.json
+
+  templates:
+  - name: ci-pipeline
+    steps:
+    - - name: checkout
+        template: git-checkout
+    - - name: build-java
+        template: maven-build
+    - - name: build-docker
+        template: docker-build
+    - - name: update-gitops
+        template: gitops-update
+
+  - name: git-checkout
+    container:
+      image: alpine/git
+      command: [sh, -c]
+      args: ["git clone https://github.com/nikhildhakad55/piggymetrics.git /workspace && cd /workspace && git checkout {{workflow.parameters.revision}}"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /workspace
+
+  - name: maven-build
+    container:
+      image: maven:3.8-jdk-8
+      command: [sh, -c]
+      args: ["cd /workspace && mvn clean package -pl account-service -am -DskipTests"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /workspace
+
+  - name: docker-build
+    container:
+      image: gcr.io/kaniko-project/executor:latest
+      args:
+      - --context=/workspace/account-service
+      - --dockerfile=/workspace/account-service/Dockerfile
+      - --destination=ghcr.io/nikhildhakad55/piggymetrics-account-service:{{workflow.name}}
+      volumeMounts:
+      - name: workdir
+        mountPath: /workspace
+      - name: docker-config
+        mountPath: /kaniko/.docker/
+
+  - name: gitops-update
+    container:
+      image: alpine/git
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-pat-secret
+              key: token
+      command: [sh, -c]
+      args:
+        - |
+          git config --global user.email "argo-bot@piggymetrics.com"
+          git config --global user.name "Argo CI Bot"
+          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/nikhildhakad55/piggymetrics.git /tmp/repo
+          cd /tmp/repo
+          sed -i "s|image: ghcr.io/nikhildhakad55/piggymetrics-account-service:.*|image: ghcr.io/nikhildhakad55/piggymetrics-account-service:{{workflow.name}}|g" kubernetes/apps/account-service/deployment.yaml
+          git add kubernetes/apps/account-service/deployment.yaml
+          git commit -m "Deploy: Update account-service to tag {{workflow.name}}"
+          git push origin master
